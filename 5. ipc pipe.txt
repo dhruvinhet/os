@@ -1,0 +1,188 @@
+#include<stdio.h>
+#include<sys/types.h>
+#include<sys/ipc.h>
+#include<unistd.h>
+#include<stdlib.h>
+#include<string.h>
+#define MAX 20
+
+
+void clearConsole() {
+    printf("\033[H\033[J");
+}
+
+int main(){
+    int p2c[2];
+    int c2p[2];
+    char cstring[MAX];
+    char pstring[MAX];
+    
+    clearConsole();
+    printf("\nEnter string for child to give to parent: ");
+    gets(cstring);
+    
+    printf("\nEnter string for parent to give to child: ");
+    gets(pstring);
+    
+    if(pipe(p2c) == -1 || pipe(c2p) == -1){
+        printf("\nPipe error");
+        exit(0);
+    }
+    
+    pid_t pid = fork();
+    if(pid<0){
+        printf("\nFork error");
+        exit(0);
+    }
+    
+    if(pid == 0){
+        close(p2c[1]); 
+        close(c2p[0]); 
+        char buffer[MAX];
+
+        read(p2c[0],buffer,MAX);
+        printf("\n\nChild received message: %s",buffer);
+        write(c2p[1],cstring, strlen(cstring)+1);
+        
+        close(p2c[0]);
+        close(c2p[1]);
+    }
+    if(pid > 0){
+        close(c2p[1]);
+        close(p2c[0]);
+        
+        write(p2c[1],pstring,strlen(pstring)+1);
+        
+        char buffer[MAX];
+        read(c2p[0],buffer,MAX);
+        printf("\n\nParent received msg: %s",buffer);
+        
+        close(p2c[1]);
+        close(c2p[0]);
+    }
+    
+    exit(0);
+}
+
+
+
+
+
+
+
+One way:
+#include<stdio.h>
+#include<sys/types.h>
+#include<sys/ipc.h>
+#include<unistd.h>
+#include<stdlib.h>
+#include<string.h>
+
+#define MAX 20
+
+int main() {
+    int filedes[2];
+    int n;
+    char string[MAX];
+    char line[MAX];
+    pid_t pid; 
+    
+    printf("\nEnter string to give to parent: ");
+    
+    fgets(string, MAX, stdin);
+    string[strcspn(string, "\n")] = '\0';
+
+
+    if (pipe(filedes) < 0) {
+        printf("\nPipe creation error");
+        exit(0);
+    }
+    
+    pid = fork();
+    if (pid < 0) {
+        printf("\nFork creation error");
+        exit(0);
+    }
+    
+    if (pid > 0) {
+        // parent
+        close(filedes[0]); 
+        write(filedes[1], string, strlen(string) + 1);
+    }
+    if(pid == 0){
+        // child
+        close(filedes[1]); 
+        n = read(filedes[0], line, MAX);
+        line[n] = '\0'; 
+        printf("\nData read by child: %s\n", line);
+    }
+    
+    exit(0);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+Input:  Two way communication program:
+
+
+#include<stdio.h>
+#include<sys/types.h>
+#include<unistd.h>
+#include<stdlib.h>
+#include<string.h>
+#define MAX 20
+
+int main(){
+    int p2c[2];
+    int c2p[2];
+    char cstring[MAX];
+    char pstring[MAX];
+
+    printf("\nEnter string for child to give to parent: ");
+    scanf("%s",cstring);
+    printf("\nEnter string for parent to give to child: ");
+    scanf("%s",pstring);
+    
+    if(pipe(p2c) == -1 || pipe(c2p) == -1){
+        printf("\nPipe error");
+        exit(0);
+    }
+    
+    pid_t pid = fork();
+    
+    if(pid<0){
+        printf("\nFork error");
+        exit(0);
+    }
+    if(pid == 0){
+        close(p2c[1]);
+        close(c2p[0]);
+        char buffer[MAX];
+        read(p2c[0],buffer,MAX);
+        printf("\nChild received message: %s\n",buffer);
+        write(c2p[1],cstring, strlen(cstring)+1);
+        close(p2c[0]);
+        close(c2p[1]);
+    }
+    if(pid > 0){
+        close(c2p[1]);
+        close(p2c[0]);
+        write(p2c[1],pstring,strlen(pstring)+1);
+        char buffer[MAX];
+        read(c2p[0],buffer,MAX);
+        printf("\nParent received msg: %s\n",buffer);
+        close(p2c[1]);
+        close(c2p[0]);
+    }
+    exit(0);
+}
+

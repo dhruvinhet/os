@@ -1,0 +1,61 @@
+-----1)Arithmetic operations-----
+#!/bin/bash
+
+ 
+  echo "1 . Addition (+)"
+  echo "2 .  Subtraction (-)"
+  echo "3 .  Multiplication (*)"
+  echo "4 .  Division (/)"
+
+  echo "Enter choice :"
+  read choice
+
+  echo "Enter 1st number: "
+  read a
+  echo "Enter 2nd number: "
+  read b
+ 
+
+  case $choice in
+    1) echo "Result: $((a + b))" ;;
+    2) echo "Result: $((a - b))" ;;
+    3) echo "Result: $((a * b))" ;;
+    4) echo "Result: $(echo "scale=2; $a / $b" | bc)" ;;
+    *) echo "Invalid choice" ;;
+  esac
+  echo
+
+
+
+-----2)Directory and Subdirectory
+#!/bin/bash
+
+#Directory and subdirectory
+echo "Making Directory and Subdirectory"
+mkdir -p a/b
+cd a
+echo "Directory and subdirectory created!"
+echo
+
+#create a .txt file using cat command
+echo "Enter data for c.txt file(Ctrl+D to save)"
+cat > c.txt
+echo "Data entered into c.txt!"
+echo
+
+#Make a copy of it, rename it
+echo "Making copy of c.txt file "
+cp c.txt c_copy.txt
+echo "c_copy.txt made!"
+echo
+
+#Set read/write/exeute for owner and read-only for group/others
+echo "Setting permissions for owner and others"
+chmod 744 c.txt
+chmod 744 c_copy.txt
+echo "Permission 744 set !"
+echo
+
+#List all files in the directory with owner , group and others rights
+echo "All files in the directory : "
+ls -l

@@ -1,0 +1,32 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+
+int main() {
+    int at[6], bt[6], ct[6], tat[6], wt[6], st[6], process[6];
+
+    for(int i = 1; i<6; i++) {
+        printf("Enter details for process P%d:\n", i);
+        process[i] = i;
+        printf("Arrival Time: ");
+        scanf("%d", &at[i]);
+        printf("Burst Time: ");
+        scanf("%d", &bt[i]);
+        wt[i] = 0;
+        ct[i] = 0;
+        tat[i] = 0;
+    }
+
+    st[1] = at[1];
+    for(int i = 1; i<6; i++) {
+        ct[i] = st[i] + bt[i];
+        tat[i] = ct[i] - at[i];
+        wt[i] = tat[i] - bt[i];
+        st[i+1] = ct[i];
+    }
+    printf("\nProcess\tArrival Time\tBurst Time\tCompletion Time\tTurnaround Time\tWaiting Time\n");
+    for(int i = 1; i<6; i++) {
+        printf("P%d\t%d\t\t%d\t\t%d\t\t%d\t\t%d\n", process[i], at[i], bt[i], ct[i], tat[i], wt[i]);
+    }
+    return 0;
+}
